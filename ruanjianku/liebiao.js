@@ -1,4 +1,4 @@
- // Firebase配置
+// Firebase配置
 const firebaseConfig = {
     apiKey: "AIzaSyDk5p6EJAe02LEeqhQm1Z1dZxlIqGrRcUo",
     authDomain: "asqrt-ed615.firebaseapp.com",
@@ -13,13 +13,11 @@ const firebaseConfig = {
 const app = firebase.initializeApp(firebaseConfig);
 const database = firebase.database();
 
-// 从Firebase获取软件库列表并生成列表项
+// 加载软件库列表
 function loadSoftwareList() {
-    const container = document.getElementById('软件库列表id');
-    
-    // 监听数据库中的数据变化
-    database.ref('sites').on('value', (snapshot) => {
-        container.innerHTML = ''; // 清空容器
+    database.ref('sites').once('value').then((snapshot) => {
+        const softwareListContainer = document.getElementById('软件库列表id');
+        softwareListContainer.innerHTML = ''; // 清空现有列表
 
         snapshot.forEach((childSnapshot) => {
             const site = childSnapshot.val();
@@ -27,8 +25,10 @@ function loadSoftwareList() {
             div.className = '软件库块class';
             div.setAttribute('onclick', `window.open('${site.url}', '_blank')`);
             div.innerHTML = `<span class="lbk-wz-class">${site.name}</span>`;
-            container.appendChild(div);
+            softwareListContainer.appendChild(div);
         });
+    }).catch((error) => {
+        console.error("Error loading software list: ", error);
     });
 }
 
