@@ -1,34 +1,40 @@
 // Firebase配置
+import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-app.js";
+import { getDatabase, ref, onValue } from "https://www.gstatic.com/firebasejs/9.22.1/firebase-database.js";
+
 const firebaseConfig = {
     apiKey: "AIzaSyDk5p6EJAe02LEeqhQm1Z1dZxlIqGrRcUo",
     authDomain: "asqrt-ed615.firebaseapp.com",
-    databaseURL: "https://asqrt-ed615-default-rtdb.firebaseio.com/",
+    databaseURL: "https://asqrt-ed615-default-rtdb.firebaseio.com",
     projectId: "asqrt-ed615",
     storageBucket: "asqrt-ed615.appspot.com",
     messagingSenderId: "131720495048",
     appId: "1:131720495048:web:35f43929e31c1cc3428afd",
+    measurementId: "G-G7D5HRMF0E"
 };
 
 // 初始化Firebase
-const app = firebase.initializeApp(firebaseConfig);
-const database = firebase.database();
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
-// 加载软件库列表
+// 从Firebase读取软件库列表
 function loadSoftwareList() {
-    database.ref('sites').once('value').then((snapshot) => {
-        const softwareListContainer = document.getElementById('软件库列表id');
-        softwareListContainer.innerHTML = ''; // 清空现有列表
+    const softwareListRef = ref(database, 'sites'); // 使用你提供的路径 'sites'
+    
+    onValue(softwareListRef, (snapshot) => {
+        const softwareList = snapshot.val();
+        const container = document.getElementById('软件库列表id');
+        container.innerHTML = ''; // 清空容器
 
-        snapshot.forEach((childSnapshot) => {
-            const site = childSnapshot.val();
+        // 遍历数据并动态生成列表项
+        for (const key in softwareList) {
+            const item = softwareList[key];
             const div = document.createElement('div');
             div.className = '软件库块class';
-            div.setAttribute('onclick', `window.open('${site.url}', '_blank')`);
-            div.innerHTML = `<span class="lbk-wz-class">${site.name}</span>`;
-            softwareListContainer.appendChild(div);
-        });
-    }).catch((error) => {
-        console.error("Error loading software list: ", error);
+            div.setAttribute('onclick', `window.open('${item.url}', '_blank')`);
+            div.innerHTML = `<span class="lbk-wz-class">${item.name}</span>`;
+            container.appendChild(div);
+        }
     });
 }
 
